@@ -7,6 +7,7 @@ from loguru import logger
 
 from config import config
 from models import ChatCompletionRequest
+from models.ChatCompletionRequest import ExtraHeaders
 from websocket_client import client
 import asyncio
 import json
@@ -21,7 +22,7 @@ MODEL_NAME = config.MODEL_NAME
 @app.post("/v1/chat/completions")
 async def stream_data(request: Request, completion_request: ChatCompletionRequest):
     authorization = request.headers.get("authorization").replace("Bearer ", "")
-    completion_request.extra_headers = {"authorization": authorization}
+    completion_request.extra_headers = ExtraHeaders(authorization=authorization)
     logger.info("start")
     await client.connect(f"ws://127.0.0.1:6898/{authorization}")
     await client.send_message(completion_request)
@@ -30,8 +31,8 @@ async def stream_data(request: Request, completion_request: ChatCompletionReques
         try:
             while True:
                 try:
-                    # Add 5-second timeout for receive_message
-                    response = await asyncio.wait_for(client.receive_message(), timeout=5.0)
+                    # Add 10-second timeout for receive_message
+                    response = await asyncio.wait_for(client.receive_message(), timeout=10.0)
 
                     if not response.startswith("data:"):
                         raise ValueError("Invalid response format")
