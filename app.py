@@ -44,7 +44,7 @@ async def stream_data(request: Request, completion_request: ChatCompletionReques
                     # Format error using OpenAI error format
                     error_response = {
                         "error": {
-                            "message": "Request timed out after waiting for 5 seconds",
+                            "message": "Request timed out after waiting for 10 seconds",
                             "type": "timeout_error",
                             "code": "timeout_error"
                         }
