@@ -3,7 +3,8 @@ from typing import List
 
 import websockets
 from loguru import logger
-from models import ChatCompletionRequest,ChatCompletionResponse,ChatCompletionChunkResponse
+from models import ChatCompletionRequest, ChatCompletionResponse, ChatCompletionChunkResponse
+
 
 class WebSocketClient:
     def __init__(self):
@@ -41,7 +42,7 @@ class WebSocketClient:
             await self.send_message(self.temp_mq[0])
             self.temp_mq.pop(0)
 
-    async def receive_message(self)->str:
+    async def receive_message(self) -> str:
         """
         从核心接收消息
         :return:

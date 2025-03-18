@@ -1,4 +1,5 @@
 import time
+from asyncio import wait_for
 
 import uvicorn
 from fastapi import FastAPI, Request
@@ -16,7 +17,7 @@ from fastapi.responses import JSONResponse
 app = FastAPI()
 
 MODEL_NAME = config.MODEL_NAME
-
+WAIT_TIMEOUT = 50
 
 
 @app.post("/v1/chat/completions")
@@ -31,8 +32,8 @@ async def stream_data(request: Request, completion_request: ChatCompletionReques
         try:
             while True:
                 try:
-                    # Add 10-second timeout for receive_message
-                    response = await asyncio.wait_for(client.receive_message(), timeout=10.0)
+                    # Add wait_for_timeout-second timeout for receive_message
+                    response = await asyncio.wait_for(client.receive_message(), timeout=WAIT_TIMEOUT)
 
                     if not response.startswith("data:"):
                         raise ValueError("Invalid response format")
@@ -44,7 +45,7 @@ async def stream_data(request: Request, completion_request: ChatCompletionReques
                     # Format error using OpenAI error format
                     error_response = {
                         "error": {
-                            "message": "Request timed out after waiting for 10 seconds",
+                            "message": f"Request timed out after waiting for {WAIT_TIMEOUT} seconds",
                             "type": "timeout_error",
                             "code": "timeout_error"
                         }
@@ -63,8 +64,10 @@ async def stream_data(request: Request, completion_request: ChatCompletionReques
             }
             yield f"data: {json.dumps(error_response)}\n\n"
             yield "data: [DONE]\n\n"
+            client.close()
 
     return StreamingResponse(get_response_stream(), media_type="text/event-stream")
+
 
 @app.get("/v1/models")
 async def list_models():
