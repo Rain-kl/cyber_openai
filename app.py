@@ -1,18 +1,17 @@
+import asyncio
+import json
 import time
-from asyncio import wait_for
 
 import uvicorn
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import JSONResponse
+from fastapi.responses import StreamingResponse
 from loguru import logger
 
 from config import config
 from models import ChatCompletionRequest
 from models.ChatCompletionRequest import ExtraHeaders
 from websocket_client import client
-import asyncio
-import json
-from fastapi.responses import JSONResponse
 
 app = FastAPI()
 
